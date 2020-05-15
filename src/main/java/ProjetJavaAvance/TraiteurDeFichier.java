@@ -2,6 +2,7 @@ package ProjetJavaAvance;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import org.apache.commons.io.FilenameUtils;
@@ -44,8 +45,8 @@ public class TraiteurDeFichier {
 	 */
 	public void faireTraitement(String nomEtCheminFichierIn, int pas) {
 		
-		// Construction d'un CSV Reader sur le fichier
-		File fichierIn = new File(nomEtCheminFichierIn);
+		// Construction d'un CSV Reader sur le fichier en utilisant Paths
+		File fichierIn = new File(Paths.get(nomEtCheminFichierIn).toUri());
 		// Acquisition d'un FileReader
 		FileReader fileReader = null;
 		try {
@@ -81,6 +82,7 @@ public class TraiteurDeFichier {
 	    
 	    
 	    try {
+	    	System.out.println("Lecture et découpage du fichier...");
 	    	int i = 1; // Indice pour gérer le pas / les lots
 	    	int numLigne = 0; // Numéro de la ligne courante dans le fichier lu
 	    	Thread thread = null; // Un Thread
@@ -130,7 +132,8 @@ public class TraiteurDeFichier {
 			// On parcours la liste des Threads dans l'ordre où elle a été construite 
 			// au départ
 			for (Thread leThread : tousLesThreads) {
-				// Pour chaque thread, on récupère les lignes modifiées (portées par le runnable du Thread)
+				// Pour chaque thread, on récupère les lignes modifiées
+				// (portées par le runnable du Thread)
 				List<String[]> mesLignesModifiee =
 						mapDesRunnableParThread.get(leThread).getLignes();
 				// et on inscrit les lignes dans le fichier de sortie
@@ -166,7 +169,7 @@ public class TraiteurDeFichier {
 		TraiteurDeFichier tdf = new TraiteurDeFichier();
 		// On le lance
 		tdf.faireTraitement(
-				"C:\\\\Users\\\\pasca\\\\Desktop\\\\TestProjetJavaAvancéIN.csv", // Fichier IN
+				"C:\\Users\\pasca\\Google Drive\\Formations\\Ionis stm\\Cours\\Java Avancé\\Projet\\dataf3.csv", // Fichier IN
 				1000); // Lots de 100 lignes
 	}
 	

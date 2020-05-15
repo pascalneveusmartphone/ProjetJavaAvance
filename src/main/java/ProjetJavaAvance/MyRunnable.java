@@ -60,12 +60,16 @@ public class MyRunnable implements Runnable {
 		// Au final on ajoute le séparateur
 		lignes.add(SEPARATEUR);
 		
+		// dormir();
+		System.out.println(this.toString() + " FIN");
+	}
+	
+	private void dormir() {
 		try { // On peut d'attente pour avoir le temps de voir le parallélisme
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println(this.toString() + " FIN");
 	}
 }
