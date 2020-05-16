@@ -40,9 +40,11 @@ public class MyRunnable implements Runnable {
 	 * Méthode d'implémentation Runnable (run)
 	 */
 	public void run() {
+		// System.out.println(this.toString() + " dodo");
+		dormir();
 		// Le séparateur de fin de traitement
 		String[] SEPARATEUR = null;
-		System.out.println(this.toString() + " DEBUT");
+		// System.out.println(this.toString() + " DEBUT");
 		int colonne; // L'indice de la colonne à traiter, la dernière de la ligne.
 		
 		// On parcours chaques lignes que le Runnable a à traiter
@@ -59,9 +61,8 @@ public class MyRunnable implements Runnable {
 		
 		// Au final on ajoute le séparateur
 		lignes.add(SEPARATEUR);
-		
-		// dormir();
-		System.out.println(this.toString() + " FIN");
+		dormir();
+		// System.out.println(this.toString() + " FIN");
 	}
 	
 	private void dormir() {

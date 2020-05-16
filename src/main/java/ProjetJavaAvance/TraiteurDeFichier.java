@@ -21,12 +21,31 @@ public class TraiteurDeFichier {
 	 */
 	private List<Thread> tousLesThreads = null;
 	
+	private int getNbTraitementsActif(int lastNumber) {
+		// A priori, la réponse est Oui
+		int reponse =0;
+		// On parcours tous les threads
+		for (Thread thread : tousLesThreads) {
+			if ( thread.isAlive() ) { // Si un thread est actif
+				reponse += 1; // La réponse sera Non
+			//	break; // on sort de la boucle
+			}
+		}
+		if ( reponse != lastNumber ) {
+			System.out.println(Calendar.getInstance().getTime() + " : il reste " + reponse + " traitements actifs.");
+		}
+		return reponse;
+	}
 	/**
 	 * Est-ce que tous les Threads sont terminés ?
 	 * @return Vrai si tous les Threads sont terminés, false sinon.
 	 */
 	private boolean isTraitementsFini() {
-		// A priori, la réponse est Oui
+		int nbTraitementsActis = getNbTraitementsActif(0);
+		return nbTraitementsActis==0;
+		/*
+		  // A priori, la réponse est Oui
+		 
 		boolean reponse = true;
 		// On parcours tous les threads
 		for (Thread thread : tousLesThreads) {
@@ -37,6 +56,7 @@ public class TraiteurDeFichier {
 		}
 		// On rends la réponse
 		return reponse;
+		*/
 	}
 	
 	/**
@@ -60,12 +80,13 @@ public class TraiteurDeFichier {
 		
 	    // On détermine le nom du fichier de sortie
 		String nomDuFichier = fichierIn.getName();
-		String nomDuFichierSansExtension = (nomDuFichier != null) ? nomDuFichier.substring(0,nomDuFichier.indexOf('.')) : "";
+		String nomDuFichierSansExtension =
+				(nomDuFichier != null) ? nomDuFichier.substring(0,nomDuFichier.indexOf('.')) : "";
 		String extension = FilenameUtils.getExtension(nomDuFichier);
 		StringBuffer sb = new StringBuffer();
 		sb.append(nomDuFichierSansExtension).append("_output.").append(extension);
 		String nomFichierOut = sb.toString();
-		System.out.println("Nous allons générer le fichier " + nomFichierOut);
+		System.out.println(Calendar.getInstance().getTime() + " : Nous allons générer le fichier " + nomFichierOut);
 		
 		// Préparation du fichier de sortie
 		File fichierOut = new File(fichierIn.getParentFile(),nomFichierOut);
@@ -80,9 +101,8 @@ public class TraiteurDeFichier {
 		// Création d'un CSV Writer
 	    CSVWriter cvsWriter = new CSVWriter(fileWriter,';');
 	    
-	    
 	    try {
-	    	System.out.println("Lecture et découpage du fichier...");
+			System.out.println(Calendar.getInstance().getTime() + " : Lecture et découpage du fichier...");
 	    	int i = 1; // Indice pour gérer le pas / les lots
 	    	int numLigne = 0; // Numéro de la ligne courante dans le fichier lu
 	    	Thread thread = null; // Un Thread
@@ -114,20 +134,24 @@ public class TraiteurDeFichier {
 					i++; // On note que la taille du lot a augmenté
 				}
 			}
-	    	
+	    	System.out.println(Calendar.getInstance().getTime() + " : " + numLigne + " lignes ont été lues");
+	    	System.out.println(Calendar.getInstance().getTime() + " : " + tousLesThreads.size() + " threads ont été préparés");
 	    	// La lecture du fichie in est faite, les Threads ont été créé et leurs données
 	    	// leur ont été affectées, on les lance
-			System.out.println("Threads préparés.. On les lance");
+			System.out.println(Calendar.getInstance().getTime() + " : On les lance");
 			for (Thread leThread : tousLesThreads) {
 				leThread.start();
 			}
-			System.out.println("Threads lancés");
+			System.out.println(Calendar.getInstance().getTime() + " : " + tousLesThreads.size() + " threads on été lancés");
 			
 			// On attends la fin de tous les threads car il va falloir construire le
 			// fichier out dans l'ordre des lots
-			System.out.println("On attends la fin des threads");
-			while(!isTraitementsFini());
-			System.out.println("Tous les Threads sont terminés");
+			System.out.println(Calendar.getInstance().getTime() + " : On attends la fin des threads");
+			int nbTraitementsActifs = getNbTraitementsActif(0);
+			while(nbTraitementsActifs!=0) {
+				nbTraitementsActifs = getNbTraitementsActif(nbTraitementsActifs);
+			}
+			System.out.println(Calendar.getInstance().getTime() + " : Tous les Threads sont terminés");
 		
 			// On parcours la liste des Threads dans l'ordre où elle a été construite 
 			// au départ
@@ -141,7 +165,7 @@ public class TraiteurDeFichier {
 					cvsWriter.writeNext(ligneModifiee);
 				}
 			}
-			System.out.println("Le fichier est généré");
+			System.out.println(Calendar.getInstance().getTime() + " : Le fichier de sortie est généré");
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -158,6 +182,7 @@ public class TraiteurDeFichier {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	    System.out.println(Calendar.getInstance().getTime() + " : Les fichiers et buffers sont fermés");
 	}
 
 	/**
