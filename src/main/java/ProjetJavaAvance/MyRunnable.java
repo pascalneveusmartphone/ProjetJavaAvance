@@ -9,7 +9,7 @@ import java.util.List;
 public class MyRunnable implements Runnable {
 	
 	/**
-	 * Les lignes que ce Runnable aura à traiter
+	 * Les lignes que ce Runnable aura à traiter (une liste de tableaux de String)
 	 */
 	private List<String[]> lignes;
 	

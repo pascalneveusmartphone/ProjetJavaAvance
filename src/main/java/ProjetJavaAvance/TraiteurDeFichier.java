@@ -21,6 +21,11 @@ public class TraiteurDeFichier {
 	 */
 	private List<Thread> tousLesThreads = null;
 	
+	/**
+	 * Rends le nombre de traitements actifs et compare au dernier nombre
+	 * @param lastNumber le dernier nombre de traitements actifs
+	 * @return le nombre de traitements actifs et compare au dernier nombre
+	 */
 	private int getNbTraitementsActif(int lastNumber) {
 		// A priori, la réponse est Oui
 		int reponse =0;
@@ -78,29 +83,9 @@ public class TraiteurDeFichier {
 		// Construction d'un CSVReader
 		CSVReader csvReader = new CSVReader(fileReader, ';');
 		
-	    // On détermine le nom du fichier de sortie
-		String nomDuFichier = fichierIn.getName();
-		String nomDuFichierSansExtension =
-				(nomDuFichier != null) ? nomDuFichier.substring(0,nomDuFichier.indexOf('.')) : "";
-		String extension = FilenameUtils.getExtension(nomDuFichier);
-		StringBuffer sb = new StringBuffer();
-		sb.append(nomDuFichierSansExtension).append("_output.").append(extension);
-		String nomFichierOut = sb.toString();
-		System.out.println(Calendar.getInstance().getTime() + " : Nous allons générer le fichier " + nomFichierOut);
+		FileWriter fileWriter = null;
+		CSVWriter cvsWriter = null;
 		
-		// Préparation du fichier de sortie
-		File fichierOut = new File(fichierIn.getParentFile(),nomFichierOut);
-		// Création d'un FileWriter
-	    FileWriter fileWriter = null;
-		try {
-			fileWriter = new FileWriter(fichierOut);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		// Création d'un CSV Writer
-	    CSVWriter cvsWriter = new CSVWriter(fileWriter,';');
-	    
 	    try {
 			System.out.println(Calendar.getInstance().getTime() + " : Lecture et découpage du fichier...");
 	    	int i = 1; // Indice pour gérer le pas / les lots
@@ -136,30 +121,53 @@ public class TraiteurDeFichier {
 			}
 	    	System.out.println(Calendar.getInstance().getTime() + " : " + numLigne + " lignes ont été lues");
 	    	System.out.println(Calendar.getInstance().getTime() + " : " + tousLesThreads.size() + " threads ont été préparés");
-	    	// La lecture du fichie in est faite, les Threads ont été créé et leurs données
-	    	// leur ont été affectées, on les lance
+	    	
+	    	// La lecture du fichie in est faite, les Threads ont été créé
+	    	// et leurs données leur ont été affectées, on les lance
 			System.out.println(Calendar.getInstance().getTime() + " : On les lance");
 			for (Thread leThread : tousLesThreads) {
 				leThread.start();
 			}
 			System.out.println(Calendar.getInstance().getTime() + " : " + tousLesThreads.size() + " threads on été lancés");
 			
-			// On attends la fin de tous les threads car il va falloir construire le
-			// fichier out dans l'ordre des lots
+			// On attends la fin de tous les threads car il va falloir construire le fichier out dans l'ordre des lots
 			System.out.println(Calendar.getInstance().getTime() + " : On attends la fin des threads");
 			int nbTraitementsActifs = getNbTraitementsActif(0);
 			while(nbTraitementsActifs!=0) {
 				nbTraitementsActifs = getNbTraitementsActif(nbTraitementsActifs);
 			}
 			System.out.println(Calendar.getInstance().getTime() + " : Tous les Threads sont terminés");
-		
+
+		    // On détermine le nom du fichier de sortie
+			String nomDuFichier = fichierIn.getName();
+			String nomDuFichierSansExtension =
+					(nomDuFichier != null) ? nomDuFichier.substring(0,nomDuFichier.indexOf('.')) : "";
+			String extension = FilenameUtils.getExtension(nomDuFichier);
+			StringBuffer sb = new StringBuffer();
+			sb.append(nomDuFichierSansExtension).append("_output.").append(extension);
+			String nomFichierOut = sb.toString();
+			System.out.println(Calendar.getInstance().getTime() + " : Nous allons générer le fichier " + nomFichierOut);
+		    
+			// Préparation du fichier de sortie
+			File fichierOut = new File(fichierIn.getParentFile(),nomFichierOut);
+			// Création d'un FileWriter
+		    fileWriter = null;
+			try {
+				fileWriter = new FileWriter(fichierOut);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// Création d'un CSV Writer
+		    cvsWriter = new CSVWriter(fileWriter,';');
+		    
 			// On parcours la liste des Threads dans l'ordre où elle a été construite 
 			// au départ
 			for (Thread leThread : tousLesThreads) {
 				// Pour chaque thread, on récupère les lignes modifiées
 				// (portées par le runnable du Thread)
-				List<String[]> mesLignesModifiee =
-						mapDesRunnableParThread.get(leThread).getLignes();
+				myRunnable = mapDesRunnableParThread.get(leThread);
+				List<String[]> mesLignesModifiee = myRunnable.getLignes();
 				// et on inscrit les lignes dans le fichier de sortie
 				for (String[] ligneModifiee : mesLignesModifiee) {
 					cvsWriter.writeNext(ligneModifiee);
@@ -195,7 +203,7 @@ public class TraiteurDeFichier {
 		// On le lance
 		tdf.faireTraitement(
 				"C:\\Users\\pasca\\Google Drive\\Formations\\Ionis stm\\Cours\\Java Avancé\\Projet\\dataf3.csv", // Fichier IN
-				1000); // Lots de 100 lignes
+				1000); // Lots de 1000 lignes
 	}
 	
 }
